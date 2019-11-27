@@ -1,14 +1,25 @@
-# GP-DRT
-Gaussian Process Distribution of Relaxation Times
+# Project Title
+GP-DRT: Gaussian Process Distribution of Relaxation Times
 
-## The Gaussian Process Distribution of Relaxation Times: A Machine Learning Tool for the Analysis and Prediction of Electrochemical Impedance Spectroscopy Data
+This repository contains some of the source code for the paper "The Gaussian Process Distribution of Relaxation Times: A Machine Learning Tool for the Analysis and Prediction of Electrochemical Impedance Spectroscopy Data" <u>https://doi.org/10.1016/j.electacta.2019.135316</u>. 
 
-This repository contains some of the source code for the paper <u>The Gaussian Process Distribution of Relaxation Times: A Machine Learning Tool for the Analysis and Prediction of Electrochemical Impedance Spectroscopy Data</u>. 
-
-### Tutorials
+# Tutorials
 
 * **simple_ZARC_model.ipynb**: one ZARC model based synthetic EIS data for GP-DRT.
 
 * **truncated_ZARC_model.ipynb**: truncated ZARC model at high frequency for GP-DRT prediction
 
 * **double_ZARC_model.ipynb**: test the GP-DRT for overlapping frequency behavior
+
+### Citation
+
+```
+@article{liu2019gaussian,
+  title={The Gaussian process distribution of relaxation times: A machine learning tool for the analysis and prediction of electrochemical impedance spectroscopy data},
+  author={Liu, Jiapeng and Ciucci, Francesco},
+  journal={Electrochimica Acta},
+  pages={135316},
+  year={2019},
+  publisher={Elsevier}
+}
+```

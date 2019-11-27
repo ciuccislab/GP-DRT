@@ -19,6 +19,7 @@ def integrand_L_im(x, delta_xi, sigma_f, ell):
         kernel_part = exp(a)/(1.+exp(2*a))
     return kernel_part*sqr_exp
 
+# the function for integral of L^2_im K
 def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
     f = exp(xi)
     f_prime = exp(xi_prime)

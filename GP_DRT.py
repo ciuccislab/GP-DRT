@@ -8,7 +8,7 @@ import numpy as np
 def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 
-
+# the function for integral of L_im K
 def integrand_L_im(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
     sqr_exp = exp(-0.5/(ell**2)*(x**2))

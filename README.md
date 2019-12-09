@@ -7,11 +7,11 @@ This repository contains some of the source code for the paper "The Gaussian Pro
 GP-DIP is our newly developed approach that is able to obtain both the DRT mean and covariance from the EIS data, it can also predict the DRT and the imaginary part of the impedance at frequencies not previously measured. The most important point is that the parameters that define the GP-DRT model can be selected rationally by maximizing the experimental evidence. The GP-DRT approach is tested with both synthetic experiments and “real” experiments, where the GP-DRT model can manage considerable noise, overlapping timescales, truncated data, and inductive features.
 
 # Dependencies
-numpy
+`numpy`
 
-scipy
+`scipy`
  
-matplotlib
+`matplotlib`
 
 
 # Tutorials

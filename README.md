@@ -8,8 +8,11 @@ GP-DIP is our newly developed approach that is able to obtain both the DRT mean 
 
 # Dependencies
 numpy
+
 scipy
+ 
 matplotlib
+
 
 # Tutorials
 

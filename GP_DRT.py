@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec 10 16:10:53 2019
+
+@author: Jiapeng Liu, Francesco Ciucci (francesco.ciucci@ust.hk)
+"""
+
 from math import exp
 from math import pi
 from math import log

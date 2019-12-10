@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 10 16:10:53 2019
+Created on Tue Dec 10 2019
 
 @author: Jiapeng Liu, Francesco Ciucci (francesco.ciucci@ust.hk)
 """
@@ -24,7 +24,7 @@ import numpy as np
 def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 
-# the function for integral of L_im K
+# the function to be integrated in eq (65) of main text, 
 def integrand_L_im(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
     sqr_exp = exp(-0.5/(ell**2)*(x**2))

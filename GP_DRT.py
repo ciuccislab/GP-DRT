@@ -4,14 +4,23 @@ Created on Tue Dec 10 16:10:53 2019
 
 @author: Jiapeng Liu, Francesco Ciucci (francesco.ciucci@ust.hk)
 """
+################################################################
+# This python file includes all necessary equations for GP-DRT #
+# implemented in the paper "Liu, J., & Ciucci, F. (2019). The  #
+# Gaussian process distribution of relaxation times: A machine #
+# learning tool for the analysis and prediction of             #
+# electrochemical impedance spectroscopy data. Electrochimica  #
+# Acta, 135316."                                               #
+################################################################
 
+# imports
 from math import exp
 from math import pi
 from math import log
 from scipy import integrate
 import numpy as np
 
-# Squared exponential kernel
+# Define squared exponential kernel, $\sigma_f^2 \exp\left(-\frac{1}{2 \ell^2}\left(\xi-\xi^\prime\right)^2 \right)$
 def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 

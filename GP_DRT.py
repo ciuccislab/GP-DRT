@@ -97,66 +97,42 @@ def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
 
 # assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
+# only considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
 def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
+    
+    assert np.array_equal(xi_n_vec, xi_m_vec), "vector xi_n_vec should be equal to vector xi_m_vec"
+    xi_vec = xi_n_vec
+    N_freqs = xi_vec.size
+    L_im_K = np.zeros([N_freqs, N_freqs])
 
-    if np.array_equal(xi_n_vec, xi_m_vec):
-        xi_vec = xi_n_vec
-        N_freqs = xi_vec.size
-#       vec_L_im_K = np.zeros(2*N_freqs-1)
-        L_im_K = np.zeros([N_freqs, N_freqs])
-
-        for n in range(0, N_freqs):
-            
-            delta_xi = xi_vec[n]-xi_vec[0] + log(2*pi)
-            integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
-            np.fill_diagonal(L_im_K[n:, :], (sigma_f**2)*(integral))
-            
-            delta_xi = xi_vec[0]-xi_vec[n] + log(2*pi)
-            integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
-            np.fill_diagonal(L_im_K[:, n:], (sigma_f**2)*(integral))
-    else:
-        N_n_freqs = xi_n_vec.size
-        N_m_freqs = xi_m_vec.size
-        L_im_K = np.zeros([N_n_freqs, N_m_freqs])
-
-        for n in range(0, N_n_freqs):
-            for m in range(0, N_m_freqs):
-                delta_xi = xi_n_vec[n]-xi_m_vec[m] + log(2*pi)
-                integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
-                L_im_K[n,m] =  (sigma_f**2)*(integral);
-
+    for n in range(0, N_freqs):
+        delta_xi = xi_vec[n]-xi_vec[0] + log(2*pi)
+        integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
+        np.fill_diagonal(L_im_K[n:, :], (sigma_f**2)*(integral))
+        
+        delta_xi = xi_vec[0]-xi_vec[n] + log(2*pi)
+        integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
+        np.fill_diagonal(L_im_K[:, n:], (sigma_f**2)*(integral))
     return L_im_K
 
 
 # assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
+# only considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
 def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
+    
+    assert np.array_equal(xi_n_vec, xi_m_vec), "vector xi_n_vec should be equal to vector xi_m_vec"
+    xi_vec = xi_n_vec
+    N_freqs = xi_vec.size
+    L2_im_K = np.zeros([N_freqs, N_freqs])
 
-    if np.array_equal(xi_n_vec, xi_m_vec):
-        xi_vec = xi_n_vec
-        N_freqs = xi_vec.size
-        L2_im_K = np.zeros([N_freqs, N_freqs])
+    for n in range(0, N_freqs):
+        xi = xi_vec[n]
+        xi_prime = xi_vec[0]
+        integral, tol = integrate.quad(integrand_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
 
-        for n in range(0, N_freqs):
-            xi = xi_vec[n]
-            xi_prime = xi_vec[0]
-            integral, tol = integrate.quad(integrand_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
-
-            np.fill_diagonal(L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)*integral)
-            np.fill_diagonal(L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)*integral)
+        np.fill_diagonal(L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)*integral)
+        np.fill_diagonal(L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)*integral)
             
-    else:
-        N_n_freqs = xi_n_vec.size
-        N_m_freqs = xi_m_vec.size
-
-        L2_im_K = np.zeros([N_n_freqs, N_m_freqs])
-
-        for n in range(0, N_n_freqs):
-            xi = xi_n_vec[n]
-            for m in range(0, N_m_freqs):
-                xi_prime = xi_m_vec[m]
-                integral, tol = integrate.quad(integrand_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
-                L2_im_K[n,m] = exp(xi_prime-xi)*(sigma_f**2)*integral
-
     return L2_im_K
 
 
@@ -181,6 +157,7 @@ def matrix_L_re_K(xi_vec, sigma_f, ell):
 
     return L_re_K
 
+
 def NMLL_fct(theta, Z_exp, xi_vec):
     
     sigma_n = theta[0] 
@@ -199,6 +176,7 @@ def NMLL_fct(theta, Z_exp, xi_vec):
     alpha = np.linalg.solve(L.T, alpha)
     return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
 
+
 def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
 
     N_freqs = xi_vec.size
@@ -213,6 +191,7 @@ def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
         np.fill_diagonal(der_ell_L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
 
     return der_ell_L2_im_K
+
 
 
 def grad_NMLL_fct(theta, Z_exp, xi_vec):
@@ -255,8 +234,8 @@ def grad_NMLL_fct(theta, Z_exp, xi_vec):
     return grad
 
 
-# 2D used for minimization of sigma_n and ell only
 
+# 2D used for minimization of sigma_n and ell only
 def NMLL2D_fct(theta, sigma_f, Z_exp, xi_vec):
     
     sigma_n = theta[0] 
@@ -273,6 +252,7 @@ def NMLL2D_fct(theta, sigma_f, Z_exp, xi_vec):
     alpha = np.linalg.solve(L, Z_exp.imag)
     alpha = np.linalg.solve(L.T, alpha)
     return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
+
 
 
 def grad_NMLL2D_fct(theta, sigma_f, Z_exp, xi_vec):

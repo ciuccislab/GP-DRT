@@ -4,14 +4,16 @@ Created on Tue Dec 10 2019
 
 @author: Jiapeng Liu, Francesco Ciucci (francesco.ciucci@ust.hk)
 """
-################################################################################
-# This python file includes all necessary equations for GP-DRT implemented in  #
-# the paper "Liu, J., & Ciucci, F. (2019). The Gaussian process distribution   #
-# of relaxation times: A machine learning tool for the analysis and prediction #
-# of electrochemical impedance spectroscopy data. Electrochimica Acta, 135316."#
-# If you find it is useful, please cite the paper and feel free to use and mod-#
-# fy the code.                                                                 #
-################################################################################
+
+######################################################################################
+# This python file includes all necessary functions for GP-DRT model implemented in  #
+# the paper "Liu, J., & Ciucci, F. (2019). The Gaussian process distribution of      #
+# relaxation times: A machine learning tool for the analysis and prediction of       #
+# electrochemical impedance spectroscopy data. Electrochimica Acta, 135316."         #
+#                                                                                    #
+# If you find it is useful, please feel free to use it, modify it, and develop based #
+# on this code. Please cite the paper if you utlize this code for academic useage.   #
+######################################################################################
 
 # imports
 from math import exp
@@ -104,7 +106,7 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
     return L_im_K
 
 
-# assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
+# assemble the matrix of eq (18d), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 # only considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
 def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
     
@@ -123,6 +125,24 @@ def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
             
     return L2_im_K
 
+
+# assemble the matrix corresponding to derivative of eq (18d) with respect to $\ell$, similar as above implementation 
+def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
+
+    N_freqs = xi_vec.size
+    der_ell_L2_im_K = np.zeros([N_freqs, N_freqs])
+
+    for n in range(0, N_freqs):
+        xi = xi_vec[n]
+        xi_prime = xi_vec[0]
+        integral, tol = integrate.quad(integrand_der_ell_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
+
+        np.fill_diagonal(der_ell_L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
+        np.fill_diagonal(der_ell_L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
+
+    return der_ell_L2_im_K
+
+
 # calculate the negtive marginal log-likelihood (NMLL) of eq (31)
 def NMLL_fct(theta, Z_exp, xi_vec):
     # load the initial value for parameters needed to optimize
@@ -140,39 +160,27 @@ def NMLL_fct(theta, Z_exp, xi_vec):
     # solve for alpha
     alpha = np.linalg.solve(L, Z_exp.imag)
     alpha = np.linalg.solve(L.T, alpha)                     # $(\mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I)^{-1} \mathbf Z^{\rm exp}_{\rm im}$
+    
+    # return the final result of $L(\bm \theta)$, i.e., eq (32). Note that $\frac{N}{2} \log 2\pi$ 
+    # is not included as it is a constant. The determinant of $\mathbf K_{\rm im}^{\rm full}$ is 
+    # easily calcualted as product of diagnal element of L
     return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
 
 
-def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
-
-    N_freqs = xi_vec.size
-    der_ell_L2_im_K = np.zeros([N_freqs, N_freqs])
-
-    for n in range(0, N_freqs):
-        xi = xi_vec[n]
-        xi_prime = xi_vec[0]
-        integral, tol = integrate.quad(integrand_der_ell_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
-
-        np.fill_diagonal(der_ell_L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
-        np.fill_diagonal(der_ell_L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
-
-    return der_ell_L2_im_K
-
-
-
+# gradient of the negative marginal log-likelihhod (NMLL) $L(\bm \theta)$
 def grad_NMLL_fct(theta, Z_exp, xi_vec):
-    
+    # load the initial value for parameters needed to optimize
     sigma_n = theta[0] 
     sigma_f = theta[1]  
     ell = theta[2]
     
     N_freqs = xi_vec.size
-    Sigma = (sigma_n**2)*np.eye(N_freqs)
+    Sigma = (sigma_n**2)*np.eye(N_freqs)                    # $\sigma_n^2 \mathbf I$
     
-    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)
-    K_im_full = L2_im_K + Sigma
-    
-    L = np.linalg.cholesky(K_im_full)
+    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)  # $\mathcal L^2_{\rm im} \mathbf K$
+    K_im_full = L2_im_K + Sigma                             # $\mathbf K_{\rm im}^{\rm full} = \mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I$
+    L = np.linalg.cholesky(K_im_full)                       # Cholesky decomposition to get the inverse of $\mathbf K_{\rm im}^{\rm full}$
+
     # solve for alpha
     alpha = np.linalg.solve(L, Z_exp.imag)
     alpha = np.linalg.solve(L.T, alpha)
@@ -181,11 +189,12 @@ def grad_NMLL_fct(theta, Z_exp, xi_vec):
     inv_L = np.linalg.inv(L)
     inv_K_im_full = np.dot(inv_L.T, inv_L)
     
-    # derivative matrices
-    der_mat_sigma_n = (2.*sigma_n)*np.eye(N_freqs)
-    der_mat_sigma_f = (2./sigma_f)*L2_im_K
-    der_mat_ell = der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell)
+    # calculate the derivative of matrices with respect to parameters including $sigma_n$, $sigma_f$, and $\ell$
+    der_mat_sigma_n = (2.*sigma_n)*np.eye(N_freqs)              # derivative of $\sigma_n^2 \mathbf I$ to $sigma_n$
+    der_mat_sigma_f = (2./sigma_f)*L2_im_K                      # note that the derivative is 2*sigma_f*L2_im_K/(sigma_f**2)
+    der_mat_ell = der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell)  # derivative w.r.t $\ell$
     
+    # calculate the derivative of $L(\bm \theta)$ w.r.t $sigma_n$, $sigma_f$, and $\ell$ according to eq (78)
     d_K_im_full_d_sigma_n = - 0.5*np.dot(alpha.T, np.dot(der_mat_sigma_n, alpha)) \
         + 0.5*np.trace(np.dot(inv_K_im_full, der_mat_sigma_n))    
         

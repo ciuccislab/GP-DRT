@@ -68,6 +68,7 @@ def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
         denominator = (-exp(-2*x)+((f_prime/f)**2))
     return numerator/denominator
 
+
 # similar integrand function as in eq (65), but for real part
 def integrand_L_re(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
@@ -94,7 +95,8 @@ def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     return K
 
-# assemble the matrix of eq (18b), added the ommited term of $\frac{1}{\sigma_f^2}$
+
+# assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     if np.array_equal(xi_n_vec, xi_m_vec):
@@ -112,18 +114,6 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
             delta_xi = xi_vec[0]-xi_vec[n] + log(2*pi)
             integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
             np.fill_diagonal(L_im_K[:, n:], (sigma_f**2)*(integral))
-#        for p in range(0, 2*N_freqs-1):
-#            if p<=N_freqs-1:
-#                delta_xi = xi_vec[N_freqs-1-p]-xi_vec[0] + log(2*pi)
-#            else:
-#                delta_xi = xi_vec[0]-xi_vec[p-N_freqs+1] + log(2*pi)
-#
-#            integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
-#            vec_L_im_K[p] =  (sigma_f**2)*(integral);
-#
-#        for n in range(0, N_freqs):
-#            L_im_K[n,:] = vec_L_im_K[N_freqs-n-1 : 2*N_freqs-n-1]
-
     else:
         N_n_freqs = xi_n_vec.size
         N_m_freqs = xi_m_vec.size
@@ -138,6 +128,7 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
     return L_im_K
 
 
+# assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     if np.array_equal(xi_n_vec, xi_m_vec):
@@ -193,7 +184,7 @@ def matrix_L_re_K(xi_vec, sigma_f, ell):
 def NMLL_fct(theta, Z_exp, xi_vec):
     
     sigma_n = theta[0] 
-    sigma_f = theta[1]  
+    sigma_f = theta[1]
     ell = theta[2]
     
     N_freqs = xi_vec.size

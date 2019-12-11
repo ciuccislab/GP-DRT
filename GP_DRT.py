@@ -28,7 +28,7 @@ def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 
 
-# the function to be integrated in eq (65) of main text, omiting the constant part
+# the function to be integrated in eq (65) of main text, omiting the constant part and minus sign!!!
 # $\frac{\displaystyle e^{\Delta\xi_{mn}-\chi}}{1+\left(\displaystyle e^{\Delta\xi_{mn}-\chi}\right)^2} \frac{k(\chi)}{\sigma_f^2}$
 def integrand_L_im(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0

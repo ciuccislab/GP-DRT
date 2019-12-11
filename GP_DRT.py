@@ -4,14 +4,14 @@ Created on Tue Dec 10 2019
 
 @author: Jiapeng Liu, Francesco Ciucci (francesco.ciucci@ust.hk)
 """
-################################################################
-# This python file includes all necessary equations for GP-DRT #
-# implemented in the paper "Liu, J., & Ciucci, F. (2019). The  #
-# Gaussian process distribution of relaxation times: A machine #
-# learning tool for the analysis and prediction of             #
-# electrochemical impedance spectroscopy data. Electrochimica  #
-# Acta, 135316."                                               #
-################################################################
+################################################################################
+# This python file includes all necessary equations for GP-DRT implemented in  #
+# the paper "Liu, J., & Ciucci, F. (2019). The Gaussian process distribution   #
+# of relaxation times: A machine learning tool for the analysis and prediction #
+# of electrochemical impedance spectroscopy data. Electrochimica Acta, 135316."#
+# If you find it is useful, please cite the paper and feel free to use and mod-#
+# fy the code.                                                                 #
+################################################################################
 
 # imports
 from math import exp
@@ -20,11 +20,14 @@ from math import log
 from scipy import integrate
 import numpy as np
 
+
 # Define squared exponential kernel, $\sigma_f^2 \exp\left(-\frac{1}{2 \ell^2}\left(\xi-\xi^\prime\right)^2 \right)$
 def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 
-# the function to be integrated in eq (65) of main text, 
+
+# the function to be integrated in eq (65) of main text, omiting the constant part
+# $\frac{\displaystyle e^{\Delta\xi_{mn}-\chi}}{1+\left(\displaystyle e^{\Delta\xi_{mn}-\chi}\right)^2} \frac{k(\chi)}{\sigma_f^2}$
 def integrand_L_im(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
     sqr_exp = exp(-0.5/(ell**2)*(x**2))
@@ -35,7 +38,9 @@ def integrand_L_im(x, delta_xi, sigma_f, ell):
         kernel_part = exp(a)/(1.+exp(2*a))
     return kernel_part*sqr_exp
 
-# the function for integral of L^2_im K
+
+# the function to be integrated in eq (76) of main text, omiting the constant part
+# $\frac{1}{2} \left(\chi+\Delta\xi_{mn}\right){\rm csch}\left(\chi+\Delta\xi_{mn}\right) \frac{k(\chi)}{\sigma_f^2}$
 def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
     f = exp(xi)
     f_prime = exp(xi_prime)
@@ -48,6 +53,10 @@ def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
         denominator = (-exp(-2*x)+((f_prime/f)**2))
     return numerator/denominator
 
+
+# derivative of integrand in eq (76) with respect to \ell 
+# $\frac{1}{2} \left(\chi+\Delta\xi_{mn}\right){\rm csch}\left(\chi+\Delta\xi_{mn}\right) \frac{k(\chi)}{\sigma_f^2}\chi^2$
+# omiting the $\ell^3$ in the denominator
 def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
     f = exp(xi)
     f_prime = exp(xi_prime)
@@ -59,6 +68,7 @@ def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
         denominator = (-exp(-2*x)+((f_prime/f)**2))
     return numerator/denominator
 
+# similar integrand function as in eq (65), but for real part
 def integrand_L_re(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
     sqr_exp = exp(-0.5/(ell**2)*(x**2))
@@ -69,6 +79,8 @@ def integrand_L_re(x, delta_xi, sigma_f, ell):
         kernel_part = 1./(1.+exp(2*a))
     return kernel_part*sqr_exp
 
+
+# assemble the covariance matrix K as shown in eq (18a), which consists of kenel distance between $\xi_n$ and $\xi_m$
 def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     N_n_freqs = xi_n_vec.size
@@ -82,6 +94,7 @@ def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     return K
 
+# assemble the matrix of eq (18b), added the ommited term of $\frac{1}{\sigma_f^2}$
 def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
     if np.array_equal(xi_n_vec, xi_m_vec):

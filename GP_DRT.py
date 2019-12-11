@@ -69,18 +69,6 @@ def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
     return numerator/denominator
 
 
-# similar integrand function as in eq (65), but for real part
-def integrand_L_re(x, delta_xi, sigma_f, ell):
-    kernel_part = 0.0
-    sqr_exp = exp(-0.5/(ell**2)*(x**2))
-    a = delta_xi-x
-    if a>0:
-        kernel_part = exp(-2*a)/(1.+exp(-2*a))
-    else:
-        kernel_part = 1./(1.+exp(2*a))
-    return kernel_part*sqr_exp
-
-
 # assemble the covariance matrix K as shown in eq (18a), which consists of kenel distance between $\xi_n$ and $\xi_m$
 def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
@@ -129,51 +117,29 @@ def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
         xi = xi_vec[n]
         xi_prime = xi_vec[0]
         integral, tol = integrate.quad(integrand_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
-
+        
         np.fill_diagonal(L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)*integral)
         np.fill_diagonal(L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)*integral)
             
     return L2_im_K
 
-
-def matrix_L_re_K(xi_vec, sigma_f, ell):
-
-    N_freqs = xi_vec.size
-    vec_L_re_K = np.zeros(2*N_freqs-1)
-    L_re_K = np.zeros([N_freqs, N_freqs])
-
-    for p in range(0, 2*N_freqs-1):
-        if p<=N_freqs-1:
-            delta_xi = xi_vec[N_freqs-1-p]-xi_vec[0] + log(2*pi)
-        else:
-            delta_xi = xi_vec[0]-xi_vec[p-N_freqs+1] + log(2*pi)
-
-        integral, tol = integrate.quad(integrand_L_re, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
-        vec_L_re_K[p] =  (sigma_f**2)*(integral);
-
-    for p in range(0, N_freqs):
-
-        L_re_K[p,:] = vec_L_re_K[N_freqs-p-1 : 2*N_freqs-p-1]
-
-    return L_re_K
-
-
+# calculate the negtive marginal log-likelihood (NMLL) of eq (31)
 def NMLL_fct(theta, Z_exp, xi_vec):
-    
-    sigma_n = theta[0] 
+    # load the initial value for parameters needed to optimize
+    sigma_n = theta[0]
     sigma_f = theta[1]
     ell = theta[2]
     
     N_freqs = xi_vec.size
-    Sigma = (sigma_n**2)*np.eye(N_freqs)
+    Sigma = (sigma_n**2)*np.eye(N_freqs)                    # $\sigma_n^2 \mathbf I$
     
-    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)
-    K_im_full = L2_im_K + Sigma
-    L = np.linalg.cholesky(K_im_full)
+    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)  # $\mathcal L^2_{\rm im} \mathbf K$
+    K_im_full = L2_im_K + Sigma                             # $\mathbf K_{\rm im}^{\rm full} = \mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I$
+    L = np.linalg.cholesky(K_im_full)                       # Cholesky decomposition to get the inverse of $\mathbf K_{\rm im}^{\rm full}$
     
     # solve for alpha
     alpha = np.linalg.solve(L, Z_exp.imag)
-    alpha = np.linalg.solve(L.T, alpha)
+    alpha = np.linalg.solve(L.T, alpha)                     # $(\mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I)^{-1} \mathbf Z^{\rm exp}_{\rm im}$
     return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
 
 
@@ -230,62 +196,5 @@ def grad_NMLL_fct(theta, Z_exp, xi_vec):
         + 0.5*np.trace(np.dot(inv_K_im_full, der_mat_ell))
 
     grad = np.array([d_K_im_full_d_sigma_n, d_K_im_full_d_sigma_f, d_K_im_full_d_ell])
-
-    return grad
-
-
-
-# 2D used for minimization of sigma_n and ell only
-def NMLL2D_fct(theta, sigma_f, Z_exp, xi_vec):
-    
-    sigma_n = theta[0] 
-    ell = theta[1]
-    
-    N_freqs = xi_vec.size
-    Sigma = (sigma_n**2)*np.eye(N_freqs)
-    
-    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)
-    K_im_full = L2_im_K + Sigma
-    L = np.linalg.cholesky(K_im_full)
-    
-    # solve for alpha
-    alpha = np.linalg.solve(L, Z_exp.imag)
-    alpha = np.linalg.solve(L.T, alpha)
-    return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
-
-
-
-def grad_NMLL2D_fct(theta, sigma_f, Z_exp, xi_vec):
-    
-    sigma_n = theta[0] 
-    ell = theta[1]
-    
-    N_freqs = xi_vec.size
-    Sigma = (sigma_n**2)*np.eye(N_freqs)
-    
-    L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)
-    K_im_full = L2_im_K + Sigma
-    
-    L = np.linalg.cholesky(K_im_full)
-    # solve for alpha
-    alpha = np.linalg.solve(L, Z_exp.imag)
-    alpha = np.linalg.solve(L.T, alpha)
-    
-    # compute inverse of K_im_full
-    inv_L = np.linalg.inv(L)
-    inv_K_im_full = np.dot(inv_L.T, inv_L)
-    
-    # derivative matrices
-    der_mat_sigma_n = (2.*sigma_n)*np.eye(N_freqs)
-    der_mat_ell = der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell)
-    
-    d_K_im_full_d_sigma_n = - 0.5*np.dot(alpha.T, np.dot(der_mat_sigma_n, alpha)) \
-        + 0.5*np.trace(np.dot(inv_K_im_full, der_mat_sigma_n))    
-        
-        
-    d_K_im_full_d_ell     = - 0.5*np.dot(alpha.T, np.dot(der_mat_ell, alpha)) \
-        + 0.5*np.trace(np.dot(inv_K_im_full, der_mat_ell))
-
-    grad = np.array([d_K_im_full_d_sigma_n, d_K_im_full_d_ell])
 
     return grad

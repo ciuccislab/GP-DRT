@@ -73,7 +73,6 @@ def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
 
 # assemble the covariance matrix K as shown in eq (18a), which calculates the kernel distance between $\xi_n$ and $\xi_m$
 def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
-
     N_n_freqs = xi_n_vec.size
     N_m_freqs = xi_m_vec.size
     K = np.zeros([N_n_freqs, N_m_freqs])
@@ -81,13 +80,11 @@ def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
     for n in range(0, N_n_freqs):
         for m in range(0, N_m_freqs):
             K[n,m] = kernel(xi_n_vec[n], xi_m_vec[m], sigma_f, ell)
-
     return K
 
 
 # assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
-    
     if np.array_equal(xi_n_vec, xi_m_vec):
         # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
         xi_vec = xi_n_vec
@@ -112,13 +109,11 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
                 delta_xi = xi_n_vec[n]-xi_m_vec[m] + log(2*pi)
                 integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
                 L_im_K[n,m] =  (sigma_f**2)*(integral);
-    
     return L_im_K
 
 
 # assemble the matrix of eq (18d), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
-    
     if np.array_equal(xi_n_vec, xi_m_vec):
         # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
         xi_vec = xi_n_vec
@@ -143,13 +138,11 @@ def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
                 xi_prime = xi_m_vec[m]
                 integral, tol = integrate.quad(integrand_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
                 L2_im_K[n,m] = exp(xi_prime-xi)*(sigma_f**2)*integral
-    
     return L2_im_K
 
 
 # assemble the matrix corresponding to derivative of eq (18d) with respect to $\ell$, similar as above implementation 
 def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
-
     N_freqs = xi_vec.size
     der_ell_L2_im_K = np.zeros([N_freqs, N_freqs])
 
@@ -160,7 +153,6 @@ def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
 
         np.fill_diagonal(der_ell_L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
         np.fill_diagonal(der_ell_L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
-
     return der_ell_L2_im_K
 
 
@@ -226,5 +218,4 @@ def grad_NMLL_fct(theta, Z_exp, xi_vec):
         + 0.5*np.trace(np.dot(inv_K_im_full, der_mat_ell))
 
     grad = np.array([d_K_im_full_d_sigma_n, d_K_im_full_d_sigma_f, d_K_im_full_d_ell])
-
     return grad

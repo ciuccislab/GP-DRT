@@ -28,7 +28,7 @@ def kernel(xi, xi_prime, sigma_f, ell):
     return (sigma_f**2)*exp(-0.5/(ell**2)*((xi-xi_prime)**2))
 
 
-# the function to be integrated in eq (65) of main text, omiting the constant part and minus sign!!!
+# the function to be integrated in eq (65) of the main text, omitting the constant part and minus sign!!!
 # $\frac{\displaystyle e^{\Delta\xi_{mn}-\chi}}{1+\left(\displaystyle e^{\Delta\xi_{mn}-\chi}\right)^2} \frac{k(\chi)}{\sigma_f^2}$
 def integrand_L_im(x, delta_xi, sigma_f, ell):
     kernel_part = 0.0
@@ -41,7 +41,7 @@ def integrand_L_im(x, delta_xi, sigma_f, ell):
     return kernel_part*sqr_exp
 
 
-# the function to be integrated in eq (76) of main text, omiting the constant part
+# the function to be integrated in eq (76) of the main text, omitting the constant part
 # $\frac{1}{2} \left(\chi+\Delta\xi_{mn}\right){\rm csch}\left(\chi+\Delta\xi_{mn}\right) \frac{k(\chi)}{\sigma_f^2}$
 def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
     f = exp(xi)
@@ -58,7 +58,7 @@ def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
 
 # derivative of integrand in eq (76) with respect to \ell 
 # $\frac{1}{2} \left(\chi+\Delta\xi_{mn}\right){\rm csch}\left(\chi+\Delta\xi_{mn}\right) \frac{k(\chi)}{\sigma_f^2}\chi^2$
-# omiting the $\ell^3$ in the denominator
+# omitting the $\ell^3$ in the denominator
 def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
     f = exp(xi)
     f_prime = exp(xi_prime)

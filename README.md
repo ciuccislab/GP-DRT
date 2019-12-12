@@ -16,7 +16,7 @@ GP-DRT is our newly developed approach that is able to obtain both the DRT mean 
 
 # Tutorials
 
-* **simple_ZARC_model.ipynb**: one ZARC model based synthetic EIS data for GP-DRT.
+* **simple_ZARC_model.ipynb**: one ZARC element consists of a resistor and constant phase element (CPE) in parallel.
 
 * **truncated_ZARC_model.ipynb**: truncated ZARC model at high frequency for GP-DRT prediction
 

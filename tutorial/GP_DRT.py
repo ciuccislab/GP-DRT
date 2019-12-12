@@ -56,7 +56,7 @@ def integrand_L2_im(x, xi, xi_prime, sigma_f, ell):
     return numerator/denominator
 
 
-# derivative of integrand in eq (76) with respect to \ell 
+# the derivative of the integrand in eq (76) with respect to \ell 
 # $\frac{1}{2} \left(\chi+\Delta\xi_{mn}\right){\rm csch}\left(\chi+\Delta\xi_{mn}\right) \frac{k(\chi)}{\sigma_f^2}\chi^2$
 # omitting the $\ell^3$ in the denominator
 def integrand_der_ell_L2_im(x, xi, xi_prime, sigma_f, ell):
@@ -141,7 +141,7 @@ def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
     return L2_im_K
 
 
-# assemble the matrix corresponding to derivative of eq (18d) with respect to $\ell$, similar as above implementation 
+# assemble the matrix corresponding to the derivative of eq (18d) with respect to $\ell$, similar to the above implementation 
 def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
     N_freqs = xi_vec.size
     der_ell_L2_im_K = np.zeros([N_freqs, N_freqs])
@@ -156,7 +156,7 @@ def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
     return der_ell_L2_im_K
 
 
-# calculate the negtive marginal log-likelihood (NMLL) of eq (31)
+# calculate the negative marginal log-likelihood (NMLL) of eq (31)
 def NMLL_fct(theta, Z_exp, xi_vec):
     # load the initial value for parameters needed to optimize
     sigma_n = theta[0]
@@ -175,8 +175,8 @@ def NMLL_fct(theta, Z_exp, xi_vec):
     alpha = np.linalg.solve(L.T, alpha)                     # $(\mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I)^{-1} \mathbf Z^{\rm exp}_{\rm im}$
      
     # return the final result of $L(\bm \theta)$, i.e., eq (32). Note that $\frac{N}{2} \log 2\pi$ 
-    # is not included as it is a constant. The determinant of $\mathbf K_{\rm im}^{\rm full}$ is 
-    # easily calcualted as product of diagnal element of L
+    # is not included as it is constant. The determinant of $\mathbf K_{\rm im}^{\rm full}$ is 
+    # easily calculated as the product of the diagonal element of L
     return 0.5*np.dot(Z_exp.imag,alpha) + np.sum(np.log(np.diag(L)))
 
 

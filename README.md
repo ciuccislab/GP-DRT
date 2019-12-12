@@ -16,7 +16,7 @@ GP-DRT is our newly developed approach that is able to obtain both the DRT mean 
 
 # Tutorials
 
-* **ex1_simple_ZARC_model.ipynb**: one ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE), the freqeuncy range is from 10^-4 to 10^4 Hz with 10 points per decade (ppd).
+* **ex1_simple_ZARC_model.ipynb**: one ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE), the freqeuncy range is from $10^{-4}$ Hz to $10^4$ Hz with 10 points per decade (ppd).
 
 * **ex2_double_ZARC_model.ipynb**: two ZARC elements in series to test the behavior of GP-DRT model for overlapping timescales.
 

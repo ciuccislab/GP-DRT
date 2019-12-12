@@ -16,11 +16,11 @@ GP-DRT is our newly developed approach that is able to obtain both the DRT mean 
 
 # Tutorials
 
-* **ex1_simple_ZARC_model.ipynb**: one ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE), the freqeuncy range is from $10^{-4}$ Hz to $10^4$ Hz with 10 points per decade (ppd).
+* **ex1_simple_ZARC_model.ipynb**: shows how to recover DRT from impedance syntheized using one ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE). The freqeuncy range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
 
-* **ex2_double_ZARC_model.ipynb**: two ZARC elements in series to test the behavior of GP-DRT model for overlapping timescales.
+* **ex2_double_ZARC_model.ipynb**: shows how the GP-DRT model can manage the overlapping timescales from two ZARC elements in series. The freqeuncy range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
 
-* **ex3_truncated_ZARC_model.ipynb**: the impedance by single ZARC element is truncated at lower frequency for GP-DRT prediction
+* **ex3_truncated_ZARC_model.ipynb**: shows how the GP-DRT model to recover the DRT from the truncated impedance, whose data points at lower frequency (f < 1E-3 Hz) are not available, and predict the impedance value at these `unmeasured` frequency points.
 
 # Citation
 

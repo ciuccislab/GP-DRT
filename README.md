@@ -6,7 +6,7 @@ This repository contains some of the source code for the paper "The Gaussian Pro
 # Introduction
 Distribution of relaxation times (DRT) [1] method offers an elegant solution to analyze the electrochemical impedance spectroscopy (EIS) data encountered in material science, electrochemistry, and other related fields. However, deconvolving the DRT from the EIS data is an ill-posed problem [2-3], which is particularly sensitive to experimental errors. Several well-known approaches [2-5] can overcome this issue but they all require the use of ad hoc hyperparameters. Furthermore, most methods are not probabilistic and therefore do not provide any uncertainty on the estimated DRT. GP-DRT [6] is our newly developed approach that is able to obtain both the DRT mean and covariance from the EIS data, it can also predict the DRT and the imaginary part of the impedance at frequencies not previously measured. The most important point is that the parameters that define the GP-DRT model can be selected rationally by maximizing the experimental evidence. The GP-DRT approach is tested with both synthetic experiments and “real” experiments, where the GP-DRT model can manage considerable noise, overlapping timescales, truncated data, and inductive features.
 
-![GraphModel diagram](resources/Fig_1.eps)
+![GraphModel diagram](resources/Fig_1.jpg)
 <div align='center'><strong>Figure 1. Schematic illustration of the GP-DRT framework.</strong></div>
 
 # Dependencies

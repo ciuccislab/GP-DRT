@@ -15,9 +15,9 @@ The GP-DRT approach is tested with both synthetic (in silico) experiments and ac
 The GP-DRT model can manage considerable noise, overlapping timescales, truncated data, and inductive features.
 
 # Dependencies
-numpy
-scipy
-matplotlib
+'numpy'
+'scipy'
+'matplotlib'
 
 
 # Tutorials

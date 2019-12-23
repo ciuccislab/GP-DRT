@@ -25,6 +25,8 @@ Distribution of relaxation times (DRT) [1] method offers an elegant solution to 
 
 * **ex3_truncated_ZARC_model.ipynb**: shows how the GP-DRT model can recover the DRT from the truncated impedance, whose data points at lower frequencies (f < 1E-3 Hz) are not available, and predict the impedance value at these `unmeasured` frequency points.
 
+* **ex4_real_experimental_data.ipynb**: shows an example of real experimental impedance that may represent SOFC. In this tutorial, the impedance data is read from the csv file, and DRT is automatically predicted by the GP-DRT model.
+
 # Citation
 
 ```

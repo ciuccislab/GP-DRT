@@ -16,6 +16,7 @@ Distribution of relaxation times (DRT) [1] method offers an elegant solution to 
  
 `matplotlib`
 
+`pandas`
 
 # Tutorials
 

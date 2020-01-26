@@ -1,13 +1,16 @@
 # Project
 GP-DRT: Gaussian Process Distribution of Relaxation Times
 
-This repository contains part of the source code for the paper "The Gaussian Process Distribution of Relaxation Times: A Machine Learning Tool for the Analysis and Prediction of Electrochemical Impedance Spectroscopy Data" <u>https://doi.org/10.1016/j.electacta.2019.135316</u>, which is also available in the [docs](docs) folder.
+This repository contains some of the source code used for the paper entitled
+"The Gaussian Process Distribution of Relaxation Times: A Machine Learning Tool for the Analysis and Prediction of Electrochemical Impedance Spectroscopy Data" 
+<u>https://doi.org/10.1016/j.electacta.2019.135316</u>, the preprint is also available in the [docs](docs) folder.
+
 
 # Introduction
-Distribution of relaxation times (DRT) [1] method offers an elegant solution to analyze the electrochemical impedance spectroscopy (EIS) data encountered in material science, electrochemistry, and other related fields. However, deconvolving the DRT from the EIS data is an ill-posed problem [2-3], which is particularly sensitive to experimental errors. Several well-known approaches [2-5] can overcome this issue but they all require the use of ad hoc hyperparameters. Furthermore, most methods are not probabilistic and therefore do not provide any uncertainty on the estimated DRT. GP-DRT [6] is our newly developed approach that is able to obtain both the DRT mean and covariance from the EIS data, it can also predict the DRT and the imaginary part of the impedance at frequencies not previously measured. The most important point is that the parameters that define the GP-DRT model can be selected rationally by maximizing the experimental evidence. The GP-DRT approach is tested with both synthetic experiments and “real” experiments, where the GP-DRT model can manage considerable noise, overlapping timescales, truncated data, and inductive features.
+The distribution of relaxation times (DRT) [1] is an elegant approach for the analysis of electrochemical impedance spectroscopy (EIS) data encountered in materials science, electrochemistry, and other fields. However, deconvolving the DRT from EIS data is an ill-posed problem [2-3], which is particularly sensitive to experimental errors. Several well-known approaches [2-5] can overcome this issue, but they all require the use of ad hoc hyperparameters. Furthermore, most methods are not probabilistic and therefore, do not provide any insight into uncertainty regarding the estimated DRT. GP-DRT [6] is our newly developed approach that can obtain both the DRT mean and covariance from the EIS data. It can also predict the DRT and the imaginary part of the impedance at frequencies that were not previously measured. One crucial point of the GP-DRT method is that the parameters that define the GP-DRT model can be selected rationally by maximizing the experimental evidence. The GP-DRT approach was tested against both synthetic experiments and “real” experiments. We found that the GP-DRT can manage considerable noise, overlapping timescales, truncated data, and inductive features.
 
 ![GraphModel diagram](resources/Fig_1.jpg)
-<div align='center'><strong>Figure 1. Schematic illustration of the GP-DRT framework.</strong></div>
+<div align='center'><strong>Figure 1. Schematic illustration of the GP-DRT method.</strong></div>
 
 # Dependencies
 `numpy`
@@ -20,13 +23,17 @@ Distribution of relaxation times (DRT) [1] method offers an elegant solution to 
 
 # Tutorials
 
-* **ex1_simple_ZARC_model.ipynb**: shows how to recover DRT from impedance synthesized using one ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE). The frequency range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
+* **ex1_simple_ZARC_model.ipynb**: this notebook shows how one can recover the DRT from impedance synthesized using a single ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE). 
+The frequency range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
 
-* **ex2_double_ZARC_model.ipynb**: shows how the GP-DRT model can manage the overlapping timescales from two ZARC elements in series. The frequency range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
+* **ex2_double_ZARC_model.ipynb**: this notebook shows how the GP-DRT model can manage overlapping timescales from two ZARC elements in series. 
+The frequency range is from 1E-4 Hz to 1E4 Hz with 10 ppd.
 
-* **ex3_truncated_ZARC_model.ipynb**: shows how the GP-DRT model can recover the DRT from the truncated impedance, whose data points at lower frequencies (f < 1E-3 Hz) are not available, and predict the impedance value at these `unmeasured` frequency points.
+* **ex3_truncated_ZARC_model.ipynb**: this notebook shows how the GP-DRT model can 
+1) recover the DRT from atruncated EIS spectrum (data points at lower frequencies, i.e., f < 1E-3 Hz, are not available), and 
+2) predict the impedance value at these frequencies.
 
-* **ex4_experimental_data.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from the csv file and the DRT is predicted by the GP-DRT model.
+* **ex4_experimental_data.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from acsv file and the DRT is predicted by the GP-DRT model.
 
 # Citation
 

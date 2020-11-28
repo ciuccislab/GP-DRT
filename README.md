@@ -36,7 +36,7 @@ The frequency range is from 1E-4 Hz to 1E4 Hz with 10 ppd.
 * **ex4_experimental_data.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from acsv file and the DRT is predicted by the GP-DRT model.
 
 * **ex5_inductance_ZARC_model.ipynb**: this notebook shows how the GP-DRT model can 
-1) recover the DRT from the impedance spectrum with inductance at the high frequency
+1) recover the DRT from the impedance spectrum with inductance behavior at the high frequency;
 2) estimate the inductance value.
 
 # Citation

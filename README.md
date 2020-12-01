@@ -23,17 +23,19 @@ The distribution of relaxation times (DRT) [1] is an elegant approach for the an
 
 # Tutorials
 
-* **ex1_simple_ZARC_model.ipynb**: this notebook shows how one can recover the DRT from impedance synthesized using a single ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE). 
+* **ex1_single_ZARC.ipynb**: this notebook shows how one can recover the DRT from impedance synthesized using a single ZARC element consisting of a resistance placed in parallel to a constant phase element (CPE). 
 The frequency range is from 1E-4 Hz to 1E4 Hz with 10 points per decade (ppd).
 
-* **ex2_double_ZARC_model.ipynb**: this notebook shows how the GP-DRT model can manage overlapping timescales from two ZARC elements in series. 
+* **ex2_double_ZARC.ipynb**: this notebook shows how the GP-DRT model can manage overlapping timescales from two ZARC elements in series. 
 The frequency range is from 1E-4 Hz to 1E4 Hz with 10 ppd.
 
-* **ex3_truncated_ZARC_model.ipynb**: this notebook shows how the GP-DRT model can 
+* **ex3_truncated_ZARC.ipynb**: this notebook shows how the GP-DRT model can 
 1) recover the DRT from atruncated EIS spectrum (data points at lower frequencies, i.e., f < 1E-3 Hz, are not available), and 
 2) predict the impedance value at these frequencies.
 
-* **ex4_experimental_data.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from acsv file and the DRT is predicted by the GP-DRT model.
+* **ex4_experiment.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from acsv file and the DRT is predicted by the GP-DRT model.
+
+* **ex5_single_ZARC.ipynb**: this notebook adds an inductance to the model used in ex1_single_ZARC.ipynb
 
 # Citation
 

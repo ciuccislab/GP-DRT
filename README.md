@@ -35,7 +35,7 @@ The frequency range is from 1E-4 Hz to 1E4 Hz with 10 ppd.
 
 * **ex4_experiment.ipynb**: shows an example using experimental EIS data. In this tutorial, the EIS data is read from acsv file and the DRT is predicted by the GP-DRT model.
 
-* **ex5_single_ZARC.ipynb**: this notebook adds an inductance to the model used in ex1_single_ZARC.ipynb
+* **ex5_inductance_plus_ZARC.ipynb**: this notebook adds an inductance to the model used in ex1_single_ZARC.ipynb
 
 # Citation
 

@@ -37,8 +37,6 @@ The frequency range is from 1E-4 Hz to 1E4 Hz with 10 ppd.
 
 * **ex5_inductance_plus_ZARC.ipynb**: this notebook adds an inductance to the model used in ex1_single_ZARC.ipynb
 
-* **ex6_exception_handling.ipynb**: in this notebook, we show how to resolve the error raised by `np.linalg.cholesky()`
-
 # Citation
 
 ```

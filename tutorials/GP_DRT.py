@@ -20,7 +20,50 @@ from math import pi
 from math import log
 from scipy import integrate
 import numpy as np
+from numpy import linalg as la
 
+# is a matrix positive definite?
+# if input matrix is positive-definite (<=> Cholesky decomposable), then true is returned
+# otherwise return false
+
+def is_PD(A):
+
+    try:
+        np.linalg.cholesky(A)
+        return True
+    except np.linalg.LinAlgError:
+        return False
+
+# Find the nearest positive-definite matrix
+def nearest_PD(A):
+    
+    # based on 
+    # N.J. Higham (1988) https://doi.org/10.1016/0024-3795(88)90223-6
+    # and 
+    # https://www.mathworks.com/matlabcentral/fileexchange/42885-nearestspd
+
+    B = (A + A.T)/2
+    _, Sigma_mat, V = la.svd(B)
+
+    H = np.dot(V.T, np.dot(np.diag(Sigma_mat), V))
+
+    A_nPD = (B + H) / 2
+    A_symm = (A_nPD + A_nPD.T) / 2
+
+    k = 1
+    I = np.eye(A_symm.shape[0])
+
+    while not is_PD(A_symm):
+        eps = np.spacing(la.norm(A_symm))
+
+        # MATLAB's 'chol' accepts matrices with eigenvalue = 0, numpy does not not. 
+        # So where the matlab implementation uses 'eps(mineig)', we use the above definition.
+
+        min_eig = min(0, np.min(np.real(np.linalg.eigvals(A_symm))))
+        A_symm += I * (-min_eig * k**2 + eps)
+        k += 1
+
+    return A_symm
 
 # Define squared exponential kernel, $\sigma_f^2 \exp\left(-\frac{1}{2 \ell^2}\left(\xi-\xi^\prime\right)^2 \right)$
 def kernel(xi, xi_prime, sigma_f, ell):
@@ -89,8 +132,9 @@ def matrix_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
 # assemble the matrix of eq (18b), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
+
     if np.array_equal(xi_n_vec, xi_m_vec):
-        # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
+        # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrix is square symmetrix
         xi_vec = xi_n_vec
         N_freqs = xi_vec.size
         L_im_K = np.zeros([N_freqs, N_freqs])
@@ -98,6 +142,7 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
         delta_xi = log(2*pi)
         integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
         np.fill_diagonal(L_im_K, -(sigma_f**2)*(integral))
+
         for n in range(1, N_freqs):
             delta_xi = xi_vec[n]-xi_vec[0] + log(2*pi)
             integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
@@ -113,16 +158,19 @@ def matrix_L_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
 
         for n in range(0, N_n_freqs):
             for m in range(0, N_m_freqs):
+
                 delta_xi = xi_m_vec[m] - xi_n_vec[n] + log(2*pi)
                 integral, tol = integrate.quad(integrand_L_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(delta_xi, sigma_f, ell))
                 L_im_K[n,m] = -(sigma_f**2)*(integral)
+
     return L_im_K
 
 
 # assemble the matrix of eq (18d), added the term of $\frac{1}{\sigma_f^2}$ and factor $2\pi$ before $e^{\Delta\xi_{mn}-\chi}$
 def matrix_L2_im_K(xi_n_vec, xi_m_vec, sigma_f, ell):
+
     if np.array_equal(xi_n_vec, xi_m_vec):
-        # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrice are symmetry square
+        # considering the case that $\xi_n$ and $\xi_m$ are identical, i.e., the matrix is square symmetric
         xi_vec = xi_n_vec
         N_freqs = xi_vec.size
         L2_im_K = np.zeros([N_freqs, N_freqs])
@@ -169,6 +217,12 @@ def NMLL_fct(theta, Z_exp, xi_vec):
     
     L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)  # $\mathcal L^2_{\rm im} \mathbf K$
     K_im_full = L2_im_K + Sigma                             # $\mathbf K_{\rm im}^{\rm full} = \mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I$
+
+    # begin FC - added 
+    if not is_PD(K_im_full):
+        K_im_full = nearest_PD(K_im_full)
+    # end FC - added 
+
     L = np.linalg.cholesky(K_im_full)                       # Cholesky decomposition to get the inverse of $\mathbf K_{\rm im}^{\rm full}$
     
     # solve for alpha
@@ -193,7 +247,14 @@ def NMLL_fct_L(theta, Z_exp, xi_vec):
     Sigma = (sigma_n**2)*np.eye(N_freqs)
     h_L = compute_h_L(xi_vec)
     
-    K_im_full = L2_im_K + Sigma + (sigma_L**2)*np.outer(h_L, h_L) 
+    K_im_full = L2_im_K + Sigma + (sigma_L**2)*np.outer(h_L, h_L)
+    K_im_full = 0.5*(K_im_full+K_im_full.T)
+
+    # begin FC - added 
+    if not is_PD(K_im_full):
+        K_im_full = nearest_PD(K_im_full)
+    # end FC - added 
+
     L = np.linalg.cholesky(K_im_full)
     
     # solve for alpha
@@ -210,9 +271,9 @@ def der_ell_matrix_L2_im_K(xi_vec, sigma_f, ell):
         xi = xi_vec[n]
         xi_prime = xi_vec[0]
         integral, tol = integrate.quad(integrand_der_ell_L2_im, -np.inf, np.inf, epsabs=1E-12, epsrel=1E-12, args=(xi, xi_prime, sigma_f, ell))
-
         np.fill_diagonal(der_ell_L2_im_K[n:, :], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
         np.fill_diagonal(der_ell_L2_im_K[:, n:], exp(xi_prime-xi)*(sigma_f**2)/(ell**3)*integral)
+
     return der_ell_L2_im_K
 
 # gradient of the negative marginal log-likelihhod (NMLL) $L(\bm \theta)$
@@ -227,6 +288,12 @@ def grad_NMLL_fct(theta, Z_exp, xi_vec):
     
     L2_im_K = matrix_L2_im_K(xi_vec, xi_vec, sigma_f, ell)  # $\mathcal L^2_{\rm im} \mathbf K$
     K_im_full = L2_im_K + Sigma                             # $\mathbf K_{\rm im}^{\rm full} = \mathcal L^2_{\rm im} \mathbf K + \sigma_n^2 \mathbf I$
+    
+    # begin FC - added 
+    if not is_PD(K_im_full):
+        K_im_full = nearest_PD(K_im_full)
+    # end FC - added 
+    
     L = np.linalg.cholesky(K_im_full)                       # Cholesky decomposition to get the inverse of $\mathbf K_{\rm im}^{\rm full}$
 
     # solve for alpha
@@ -269,6 +336,10 @@ def grad_NMLL_fct_L(theta, Z_exp, xi_vec):
     
     K_im_full = L2_im_K + Sigma + (sigma_L**2)*np.outer(h_L, h_L)
     
+    # begin FC - added 
+    if not is_PD(K_im_full):
+        K_im_full = nearest_PD(K_im_full)
+    # end FC - added 
     L = np.linalg.cholesky(K_im_full)
 
     # solve for alpha
